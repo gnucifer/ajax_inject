@@ -1,0 +1,22 @@
+<?php
+function ajax_inject_init() {
+	$callbacks = module_invoke_all('ajax_inject_callbacks');
+	drupal_add_js(array('ajax_inject_callbacks' => $callbacks), 'setting');
+	drupal_add_js(drupal_get_path('module', 'ajax_inject') . '/json2.js');
+	drupal_add_js(drupal_get_path('module', 'ajax_inject') . '/ajax_inject.js');
+}
+
+function ajax_inject_contexts() {
+	static $contexts;
+	if(!isset($contexts)) {
+		$contexts = module_invoke_all('ajax_inject_contexts');
+	}
+	return $contexts;
+}
+
+function ajax_inject_context_set_active($context_name = NULL) {
+		$contexts = ajax_inject_contexts();	
+		$setting = array('ajax_inject_contexts' => array($context_name => $contexts[$context_name]));
+		drupal_add_js($setting, 'setting');
+}
+?>

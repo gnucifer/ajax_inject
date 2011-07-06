@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * context_ajax_injects provided by Context.
+ */
+
+/**
+ * CTools plugin API context_ajax_inject for Context. Note that a proper entry in
+ * context_ajax_inject_ctools_plugin_api() must exist for this context_ajax_inject to be called.
+ */
+function context_ajax_inject_context_plugins() {
+  $plugins = array();
+  $plugins['context_ajax_inject_reaction_add_setting'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'context_ajax_inject') .'/plugins',
+      'file' => 'context_ajax_inject_reaction_add_setting.inc',
+      'class' => 'context_ajax_inject_reaction_add_setting',
+			'parent' => 'context_reaction',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Registry context_ajax_inject for conditions & reactions.
+ *
+ * Each entry associates a condition or reaction with the CTools plugin to be
+ * used as its plugin class.
+ */
+function context_ajax_inject_context_registry() {
+  return array(
+    'reactions' => array(
+      'context_ajax_inject_reaction_add_setting' => array(
+        'title' => t('Ajax injection callback contexts'),
+        'plugin' => 'context_ajax_inject_reaction_add_setting',
+      ),
+    ),
+  );
+}
+
+function context_ajax_inject_preprocess_page(&$vars) {
+	$map = context_reactions();
+	if (!empty($map['context_ajax_inject_reaction_add_setting']) && $plugin = context_get_plugin('reaction', 'context_ajax_inject_reaction_add_setting')) { 
+		$plugin->execute();
+	}
+}
+
+
+function context_ajax_inject_theme_registry_alter(&$theme_registry) {
+  // Push theme_page() through a context_preprocess to provide
+  // context-sensitive menus and variables. Ensure that
+  // context_preprocess_page() comes immediately after
+  // template_preprocess_page().
+	$position = array_search('context_ajax_inject_preprocess_page', $theme_registry['page']['preprocess functions']);
+	if ($position !== FALSE) {
+		array_push($theme_registry['page']['preprocess functions'], $theme_registry['page']['preprocess functions'][$position]);
+		unset($theme_registry['page']['preprocess functions'][$position]);
+	}
+}

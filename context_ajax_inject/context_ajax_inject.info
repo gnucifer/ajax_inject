@@ -1,0 +1,5 @@
+name = Ajax Inject Context
+description = TODO
+core = 6.x
+dependencies[] = ajax_inject
+dependencies[] = context 
